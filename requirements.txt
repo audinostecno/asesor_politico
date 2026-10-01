@@ -1,4 +1,3 @@
 streamlit
 google-generativeai
-mcp  # (o la librería cliente específica que requiera OpenArg en Python)
-pdfplumber # Para leer los PDFs de La Pampa que le subas
+mcp
