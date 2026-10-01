@@ -15,8 +15,8 @@ with col1:
         st.write("🇦🇷") # Respaldo por si la imagen tarda en cargar
 
 with col2:
-    st.title("Hola, soy Juan, Estoy para ayudarte a consultar datos oficiales INDEC, BCRA, ministerios, provincias. Más de 33.000 datasets de todos los portales de datos abiertos del país. La fuente es la base de datos de OpenArg.
- 👋")
+    st.title("Hola, soy Juan 👋")
+    st.markdown("Estoy para ayudarte a consultar datos oficiales INDEC, BCRA, ministerios, provincias. Más de **33.000 datasets** de todos los portales de datos abiertos del país. La fuente es la base de datos de OpenArg.")
     st.caption("📍 Santa Rosa, La Pampa")
 
 # Texto de presentación humano, directo y de gestión
