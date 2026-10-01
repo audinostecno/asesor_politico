@@ -4,7 +4,7 @@ import google.generativeai as genai
 # 1. Configuración de la página
 st.set_page_config(page_title="Asesor Político IA", page_icon="🏛️", layout="centered")
 st.title("🏛️ Asesor Político y Técnico")
-st.markdown("Asistente técnico-político de precisión. (Modo: Offline / Sin invención)")
+st.markdown("Hola soy Audinos. ¿En qué puedo ayudarte?")
 
 # 2. Inicializar el historial de chat en la memoria de la página
 if "mensajes" not in st.session_state:
