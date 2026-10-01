@@ -3,28 +3,31 @@ import google.generativeai as genai
 import os
 
 # 1. Configuración de la página
-st.set_page_config(page_title="Asesor Político - Audinos", page_icon="🇦🇷", layout="centered")
+st.set_page_config(page_title="Herramienta de Gestión - Audinos", page_icon="🇦🇷", layout="centered")
 
-# 2. Encabezado personalizado con tu caricatura y nombre
+# 2. Encabezado personal (Estilo herramienta propia)
 col1, col2 = st.columns([1, 4])
 with col1:
-    # Busca tu imagen y la ajusta al tamaño ideal
-    if os.path.exists("squat.png"):
-        st.image("squat.png", width=120)
+    # Busca la caricatura que subiste al repositorio
+    if os.path.exists("Squat.png"):
+        st.image("Squat.png", width=120)
     else:
-        st.write("🇦🇷") # Por si la imagen tarda en cargar
+        st.write("🇦🇷") # Respaldo por si la imagen tarda en cargar
 
 with col2:
     st.title("Hola, soy Audinos 👋")
     st.caption("📍 Santa Rosa, La Pampa")
 
+# Texto de presentación humano, directo y de gestión
 st.markdown("""
-Desarrollé este asistente de inteligencia artificial para agilizar nuestro trabajo técnico y político. 
+Armé esta herramienta para nuestro equipo. La idea es simple: tener a mano y al instante los datos técnicos, presupuestos y proyectos de La Pampa, sin perder tiempo buscando en mil PDFs.
 
-Está configurado estrictamente con datos provinciales, leyes y presupuestos reales. Su regla principal es la precisión: **si la información no está en los documentos, no la inventa.** 
+Está configurada con la información oficial y tiene una regla estricta: **si el dato no está en los documentos, te lo dice de frente y no inventa nada**. 
 
-¿En qué te puedo ayudar hoy?
+Escribime acá abajo, ¿qué tema o proyecto querés que revisemos?
 """)
+
+st.divider() # Línea separadora para que quede más prolijo
 
 # 3. Inicializar el historial de chat en la memoria de la página
 if "mensajes" not in st.session_state:
@@ -36,7 +39,7 @@ for mensaje in st.session_state.mensajes:
         st.markdown(mensaje["content"])
 
 # 4. Caja de texto para que el usuario pregunte
-prompt_usuario = st.chat_input("Escribí tu consulta política, presupuestaria o técnica...")
+prompt_usuario = st.chat_input("Ej: ¿Cuál es el presupuesto para tablets en escuelas primarias?")
 
 if prompt_usuario:
     # Mostrar el mensaje del usuario en pantalla
@@ -44,9 +47,9 @@ if prompt_usuario:
         st.markdown(prompt_usuario)
     st.session_state.mensajes.append({"role": "user", "content": prompt_usuario})
 
-    # 5. Iniciar la redacción de la IA con rotación de modelos
+    # 5. Iniciar la redacción de la IA con rotación de modelos (El Fallback)
     with st.chat_message("assistant"):
-        with st.spinner("🧠 Analizando datos y redactando informe..."):
+        with st.spinner("Buscando en los documentos y redactando..."):
             
             # Cargamos todas las claves que tengas en tus Secrets de Streamlit
             cuentas_keys = [
@@ -70,13 +73,13 @@ if prompt_usuario:
             respuesta = None
             ultimo_error = None
 
-            # --- INSTRUCCIÓN ESTRICTA PARA EL ASESOR POLÍTICO ---
+            # --- INSTRUCCIÓN ESTRICTA QUE CORRE POR DETRÁS ---
             prompt_asesor = f"""
-            Sos un Asesor Político y Técnico de primer nivel para la provincia de La Pampa.
-            Regla de oro: NO INVENTES INFORMACIÓN, DATOS NI NÚMEROS. 
-            Si te pregunto sobre un tema específico, respondé de forma directa, ejecutiva y estructurada (usando viñetas o negritas).
+            Sos una herramienta técnica y ejecutiva creada por Audinos para La Pampa.
+            Respondé de manera directa, profesional y clara (usando viñetas o negritas para estructurar).
+            Regla de oro: NO INVENTES INFORMACIÓN, DATOS NI NÚMEROS. Si no lo sabés, decilo claramente.
             
-            Consulta del usuario: {prompt_usuario}
+            Consulta: {prompt_usuario}
             """
 
             # Bucle 1: Recorrer las claves API
@@ -91,30 +94,28 @@ if prompt_usuario:
                     for nombre_modelo in modelos_disponibles:
                         try:
                             temp_model = genai.GenerativeModel(nombre_modelo)
-                            # Intentamos generar la respuesta
                             respuesta = temp_model.generate_content(prompt_asesor).text
-                            break # ¡ÉXITO! Rompemos el bucle de modelos
+                            break # ¡ÉXITO!
                             
                         except Exception as e:
                             ultimo_error = e
-                            continue # FALLÓ ESTE MODELO, pasa al siguiente
+                            continue # Falla este modelo, pasa al siguiente
                             
                     if respuesta:
-                        break # ¡ÉXITO! Ya tenemos respuesta, salimos de las claves
+                        break # ¡ÉXITO global!
                         
                 except Exception as e:
                     ultimo_error = e
-                    continue # FALLÓ LA CLAVE COMPLETA, pasa a la siguiente
+                    continue # Falla la clave completa, pasa a la siguiente
 
             # 6. Mostrar el resultado final en la pantalla
             if respuesta:
                 st.markdown(respuesta)
                 st.session_state.mensajes.append({"role": "assistant", "content": respuesta})
             else:
-                # Si fallaron TODAS las claves y TODOS los modelos
                 if ultimo_error and ("429" in str(ultimo_error) or "Quota" in str(ultimo_error)):
                     st.warning("⚠️ Hay demasiadas consultas en simultáneo. Esperá un minuto y volvé a intentar.")
                 elif ultimo_error and "API_KEY_INVALID" in str(ultimo_error):
-                    st.error("❌ Error: La clave de Google (API Key) es inválida o no está bien configurada en los Secrets.")
+                    st.error("❌ Error: La clave de Google no está bien configurada en los Secrets de Streamlit.")
                 else:
-                    st.error(f"❌ Error técnico general: {ultimo_error}")
+                    st.error(f"❌ Error técnico: {ultimo_error}")
